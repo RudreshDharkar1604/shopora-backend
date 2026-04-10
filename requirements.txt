@@ -1,8 +1,10 @@
 fastapi
 uvicorn
 sqlalchemy
+asyncpg
 psycopg2-binary
 python-jose
 passlib[bcrypt]
 argon2-cffi
 python-dotenv
+pydantic_settings
