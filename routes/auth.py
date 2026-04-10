@@ -7,6 +7,8 @@ from core.security import hash_password,verify_password
 from db.database import AsyncSession, get_db
 from models.user import RegisterUserRequest, LoginUserRequest
 from psycopg.auth import check_user_exists, login_controller, register_user
+from exceptions.user_exceptions import UserNotFoundException
+
 router = APIRouter()
 
 ACCESS_TOKEN_EXPIRE_MINUTES = settings.ACCESS_TOKEN_EXPIRE_MINUTES
@@ -34,7 +36,8 @@ async def login(request: LoginUserRequest, db: AsyncSession = Depends(get_db)):
         user = await check_user_exists(request.email, None, db)
         stored_password = user['password'] if user else None
         if not user:
-            return {"error": "User with this email does not exist"}
+            print("User not found ")
+            raise UserNotFoundException(userDetails=request.email)
         if not verify_password(request.password, stored_password):
             return {"error": "Invalid password"}
         result = await login_controller(request.email, stored_password, db)
@@ -44,4 +47,4 @@ async def login(request: LoginUserRequest, db: AsyncSession = Depends(get_db)):
         token = await create_access_token(data={"sub":result}, expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
         return {"access_token": token, "token_type": "bearer"}
     except Exception as e:
-        return {"error": str(e)}
+        raise e

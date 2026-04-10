@@ -3,6 +3,9 @@ from sqlalchemy import text
 from core.config import settings
 from db.database import engine
 from routes import auth
+from middlewares.auth import AuthMiddleWare
+from exceptions.base_excpetion import BaseException
+from core.exception_handler import app_exception_handler
 import logging
 
 # --------------------------------------------------
@@ -16,7 +19,7 @@ app = FastAPI(
     title="SHOPORA API",
     description="API for SHOPORA e-commerce platform",
     version="1.0.0",
-    docs_url="/swagger",
+    docs_url="/docs",
 )
 
 
@@ -62,6 +65,15 @@ async def root():
     }
 
 # --------------------------------------------------
+# Include Middlewares  
+# --------------------------------------------------
+app.add_middleware(AuthMiddleWare)
+
+# --------------------------------------------------
+# Include Exception Handler  
+# --------------------------------------------------
+app.add_exception_handler(BaseException, app_exception_handler)
+# --------------------------------------------------
 # Include Routers 
 # --------------------------------------------------
-app.include_router(auth.router, prefix="/auth", tags=["Authentication"])
+app.include_router(auth.router, prefix="/auth", tags=["Authentication Routers"])
