@@ -38,11 +38,19 @@ class AuthMiddleWare(BaseHTTPMiddleware):
             )
         try:
             token = auth_header.split(" ")[1]
-            payload = verify_access_token(token)
+            payload = await verify_access_token(token)
+            if not payload:
+                return  JSONResponse(
+                status_code=401,
+                content={"detail":"Invalid Token"}
+            )
+            print(payload)
             request.state.user = payload.get('sub')
             request.state.role = payload.get('role')
         except Exception as e:
+            print("Exception in middleware ", str(e) )
             return JSONResponse(
                 status_code=400,
                 content={"detail":"Invalid or expired token"}
             )
+        return await call_next(request)

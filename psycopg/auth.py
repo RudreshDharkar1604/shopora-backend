@@ -1,8 +1,6 @@
 from core.security import hash_password
 
 
-
-
 async def check_user_exists(email, mobile_no, db):
     query = "SELECT user_id,password FROM ecom.users WHERE email = :email"
     params = {"email": email}
@@ -20,8 +18,9 @@ async def register_user(
     ):
     hashed_password = hash_password(password)
     query = """
-        INSERT INTO ecom.users (first_name, last_name, mobile_no, email, password, address, age, is_active) 
-        VALUES (:first_name, :last_name, :mobile_no, :email, :password, :address, :age, :is_active)
+        INSERT INTO ecom.users (first_name, last_name, mobile_no, email, password, address, age, is_active,role_id) 
+        VALUES (:first_name, :last_name, :mobile_no, :email, :password, :address, :age, :is_active, :role_id)
+        RETURNING user_id
     """
     result = await db.execute(query, {
         "first_name": first_name,
@@ -31,9 +30,9 @@ async def register_user(
         "password": hashed_password,
         "address": address,
         "age": age,
-        "is_active": is_active
+        "is_active": is_active,
+        "role_id": role
     })
-    
     return result
 
 async def login_controller(email,password,db):

@@ -4,5 +4,6 @@ allowed_urls = [
             "/swagger",
             "/auth/login",
             "/auth/register",
-            "/openapi.json"
+            "/openapi.json",
+            "/roles"
         ]

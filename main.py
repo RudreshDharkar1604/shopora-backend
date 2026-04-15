@@ -2,10 +2,11 @@ from fastapi import FastAPI
 from sqlalchemy import text
 from core.config import settings
 from db.database import engine
-from routes import auth
+from routes import auth,roles, users
 from middlewares.auth import AuthMiddleWare
 from exceptions.base_excpetion import BaseException
 from core.exception_handler import app_exception_handler
+from fastapi.middleware.cors import CORSMiddleware
 import logging
 
 # --------------------------------------------------
@@ -67,6 +68,13 @@ async def root():
 # --------------------------------------------------
 # Include Middlewares  
 # --------------------------------------------------
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 app.add_middleware(AuthMiddleWare)
 
 # --------------------------------------------------
@@ -77,3 +85,5 @@ app.add_exception_handler(BaseException, app_exception_handler)
 # Include Routers 
 # --------------------------------------------------
 app.include_router(auth.router, prefix="/auth", tags=["Authentication Routers"])
+app.include_router(roles.router)
+app.include_router(users.router)

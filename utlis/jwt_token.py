@@ -18,5 +18,6 @@ async def verify_access_token(token):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         return payload
-    except jwt.JWTError:
+    except jwt.JWTError as er:
+        print("Verify token logic ", str(er))
         return None

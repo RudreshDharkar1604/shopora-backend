@@ -16,11 +16,11 @@ ACCESS_TOKEN_EXPIRE_MINUTES = settings.ACCESS_TOKEN_EXPIRE_MINUTES
 @router.post("/register")
 async def register(request: RegisterUserRequest, db: AsyncSession = Depends(get_db)):
     try:
-        if await check_user_exists(request.email, request.mobile_no, db):
+        if await check_user_exists(request.email, request.mobile_number, db):
             return {"error": "User with this email or mobile number already exists"}
         
         result = await register_user(
-            first_name=request.first_name, last_name=request.last_name, mobile_no=request.mobile_no,
+            first_name=request.first_name, last_name=request.last_name, mobile_no=request.mobile_number,
             email=request.email, password=request.password, address=request.address, age=request.age, 
             is_active=request.is_active, role=request.role, db=db)
         return result
@@ -44,7 +44,7 @@ async def login(request: LoginUserRequest, db: AsyncSession = Depends(get_db)):
         print("Login Result:", result)  
         if not result:
             return {"error": "Invalid email or password"}
-        token = await create_access_token(data={"sub":result}, expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
-        return {"access_token": token, "token_type": "bearer"}
+        token = await create_access_token(data={"sub":str(result)}, expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
+        return {"access_token": token, "token_type": "bearer","user_id": result['user_id']}
     except Exception as e:
         raise e
